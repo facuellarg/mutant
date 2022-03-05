@@ -7,9 +7,9 @@ import (
 
 type (
 	DNA struct {
-		Sequence []string
-		IsMutant bool
-		ID       int
+		Sequence []string `json:"sequence"`
+		IsMutant bool     `json:"is_mutant"`
+		ID       string   `json:"id"`
 	}
 	DnaRepositoryI interface {
 		Save(DNA) error
@@ -19,11 +19,12 @@ type (
 	}
 	dnaRepository struct {
 		awsConnection *dynamodb.DynamoDB
+		TableName     string
 	}
 )
 
 func NewDnaRepository(awsConnection *dynamodb.DynamoDB) DnaRepositoryI {
-	return &dnaRepository{awsConnection}
+	return &dnaRepository{awsConnection, "Mutant"}
 }
 
 func (dr *dnaRepository) Save(dna DNA) error {
@@ -32,7 +33,8 @@ func (dr *dnaRepository) Save(dna DNA) error {
 		return err
 	}
 	_, err = dr.awsConnection.PutItem(&dynamodb.PutItemInput{
-		Item: item,
+		Item:      item,
+		TableName: &dr.TableName,
 	})
 	return err
 }

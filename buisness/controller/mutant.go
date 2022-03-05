@@ -1,10 +1,10 @@
 package controller
 
 import (
-	"fmt"
 	"net/http"
 	"tests/entities/repository"
 
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
 )
@@ -62,14 +62,13 @@ func (mc *mutantController) IsMutant(ctx echo.Context) error {
 	Dna := repository.DNA{}
 	Dna.Sequence = dna.Sequence
 	var statusCode int
-	fmt.Printf("dna: %v\n", dna)
-	if !isMutant(dna.Sequence) {
+	Dna.IsMutant = isMutant(dna.Sequence)
+	if Dna.IsMutant {
 		statusCode = http.StatusForbidden
-		Dna.IsMutant = false
 	} else {
 		statusCode = http.StatusOK
-		Dna.IsMutant = false
 	}
+	Dna.ID = uuid.New().String()
 	if err := mc.dnaRepository.Save(Dna); err != nil {
 		log.Error(err)
 		return err
