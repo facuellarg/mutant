@@ -3,6 +3,7 @@ package controller
 import (
 	"fmt"
 	"net/http"
+	"tests/entities/repository"
 
 	"github.com/labstack/echo/v4"
 )
@@ -12,7 +13,9 @@ type (
 		IsMutant(ctx echo.Context) error
 	}
 
-	mutantController struct{}
+	mutantController struct {
+		dnaRepository repository.DnaRepositoryI
+	}
 
 	//directions in x and y  axis
 	direction struct {
@@ -20,7 +23,7 @@ type (
 		J int
 	}
 
-	DNA struct {
+	DNADto struct {
 		Sequence []string `json:"dna"`
 	}
 	//enum for directions
@@ -45,21 +48,31 @@ var directions = map[Direction]direction{
 	DIAGONAL_ARRIBA: {-1, 1},
 }
 
-func NewMutantController() *mutantController {
-	return &mutantController{}
+func NewMutantController(dnaRepository repository.DnaRepositoryI) *mutantController {
+	return &mutantController{dnaRepository}
 }
 
 //return stauts 200 if dna body represent a mutant 403 in other case
 func (mc *mutantController) IsMutant(ctx echo.Context) error {
-	dna := &DNA{}
+	dna := &DNADto{}
 	if err := ctx.Bind(dna); err != nil {
 		return echo.ErrBadRequest
 	}
+	Dna := repository.DNA{}
+	Dna.Sequence = dna.Sequence
+	var statusCode int
 	fmt.Printf("dna: %v\n", dna)
 	if !isMutant(dna.Sequence) {
-		return ctx.NoContent(http.StatusForbidden)
+		statusCode = http.StatusForbidden
+		Dna.IsMutant = false
+	} else {
+		statusCode = http.StatusOK
+		Dna.IsMutant = false
 	}
-	return ctx.NoContent(http.StatusOK)
+	if err := mc.dnaRepository.Save(Dna); err != nil {
+		return err
+	}
+	return ctx.NoContent(statusCode)
 }
 
 //determine if dna sequence belongs to a mutant or not
