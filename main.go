@@ -37,6 +37,7 @@ var directions = map[Direction]direction{
 func main() {
 
 	server := echo.New()
+
 	mutantController := controller.NewMutantController()
 	router := router.NewRouter(*server, mutantController)
 	log.Fatal(router.Start())
