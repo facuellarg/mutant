@@ -1,6 +1,8 @@
 package router
 
 import (
+	"fmt"
+	"os"
 	"tests/buisness/controller"
 
 	"github.com/labstack/echo/v4"
@@ -25,5 +27,5 @@ func (r *router) Start() error {
 
 	r.server.POST("/mutant", r.mutanController.IsMutant)
 
-	return r.server.Start(":8080")
+	return r.server.Start(fmt.Sprintf(":%s", os.Getenv("PORT")))
 }
