@@ -6,6 +6,7 @@ import (
 	"tests/entities/repository"
 
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/gommon/log"
 )
 
 type (
@@ -70,6 +71,7 @@ func (mc *mutantController) IsMutant(ctx echo.Context) error {
 		Dna.IsMutant = false
 	}
 	if err := mc.dnaRepository.Save(Dna); err != nil {
+		log.Error(err)
 		return err
 	}
 	return ctx.NoContent(statusCode)
