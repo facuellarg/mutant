@@ -64,9 +64,9 @@ func (mc *mutantController) IsMutant(ctx echo.Context) error {
 	var statusCode int
 	Dna.IsMutant = isMutant(dna.Sequence)
 	if Dna.IsMutant {
-		statusCode = http.StatusForbidden
-	} else {
 		statusCode = http.StatusOK
+	} else {
+		statusCode = http.StatusForbidden
 	}
 	Dna.ID = uuid.New().String()
 	if err := mc.dnaRepository.Save(Dna); err != nil {
