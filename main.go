@@ -36,16 +36,6 @@ var directions = map[Direction]direction{
 
 func main() {
 
-	// lambda.Start(IsMutant)
-	// dna := []string{
-	// 	"ATGGGG",
-	// 	"CAGGGC",
-	// 	"TTGTTT",
-	// 	"ATAAGG",
-	// 	"GCGTCA",
-	// 	"TCACTG",
-	// }
-	// fmt.Printf("isMutant(dna): %v\n", isMutant(dna))
 	server := echo.New()
 	mutantController := controller.NewMutantController()
 	router := router.NewRouter(*server, mutantController)
