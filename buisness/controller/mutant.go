@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"math"
 	"net/http"
 	"tests/entities/repository"
 
@@ -12,6 +13,7 @@ import (
 type (
 	MutantControllerI interface {
 		IsMutant(ctx echo.Context) error
+		Stats(ctx echo.Context) error
 	}
 
 	mutantController struct {
@@ -27,6 +29,13 @@ type (
 	DNADto struct {
 		Sequence []string `json:"dna"`
 	}
+
+	StatsDto struct {
+		CountHumanDna int     `json:"count_human_dna"`
+		CountMutanDna int     `json:"count_mutan_dna"`
+		Ratio         float64 `json:"ratio"`
+	}
+
 	//enum for directions
 	Direction int
 )
@@ -95,21 +104,29 @@ func isMutant(dna []string) bool {
 	return false
 }
 
-//search the mutant sequence in the direction gived
-func search(dna []string, i, j int, d direction, acum int) bool {
-	if acum == DEPTH {
-		return true
+func (mc *mutantController) Stats(ctx echo.Context) error {
+
+	humanCount, err := mc.dnaRepository.GetHumansCount()
+	if err != nil {
+		log.Error(err)
+		return err
 	}
-	nextI, nextJ := i+d.I, j+d.J
-
-	if dna[i][j] == dna[nextI][nextJ] {
-		return search(dna, nextI, nextJ, d, acum+1)
+	mutantCount, err := mc.dnaRepository.GetMutantsCount()
+	if err != nil {
+		log.Error(err)
+		return err
 	}
 
-	return false
-}
+	ratio := float64(mutantCount)/float64(mutantCount) + float64(humanCount)
+	ratio = math.Round(ratio*100.0) / 100
+	var stats StatsDto
+	if ratio != 0.0 {
+		stats = StatsDto{
+			CountHumanDna: humanCount,
+			CountMutanDna: mutantCount,
+			Ratio:         ratio,
+		}
+	}
 
-//Determine if the value is inside the range passed
-func IsInRange(val, limitDown, limitUp int) bool {
-	return val >= limitDown && val <= limitUp
+	return ctx.JSON(http.StatusOK, stats)
 }

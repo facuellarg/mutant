@@ -26,6 +26,7 @@ func NewRouter(
 func (r *router) Start() error {
 
 	r.server.POST("/mutant", r.mutanController.IsMutant)
+	r.server.GET("/stats", r.mutanController.Stats)
 
 	return r.server.Start(fmt.Sprintf(":%s", os.Getenv("PORT")))
 }
