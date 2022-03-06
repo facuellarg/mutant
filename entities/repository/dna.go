@@ -57,28 +57,15 @@ func (dt *dnaRepository) GetAll() ([]DNA, error) {
 func (dt *dnaRepository) GetMutantsCount() (int, error) {
 
 	filt := expression.Name("is_mutant").Equal(expression.Value(true))
-	proj := expression.NamesList(expression.Name("is_mutant"))
-	expr, err := expression.NewBuilder().WithFilter(filt).WithProjection(proj).Build()
-	if err != nil {
-		return 0, err
-	}
-	params := &dynamodb.ScanInput{
-		ExpressionAttributeNames:  expr.Names(),
-		ExpressionAttributeValues: expr.Values(),
-		FilterExpression:          expr.Filter(),
-		ProjectionExpression:      expr.Projection(),
-		TableName:                 aws.String(TABLE_NAME),
-	}
-
-	result, err := dt.awsConnection.Scan(params)
-	if err != nil {
-		return 0, err
-	}
-	return int(*result.Count), nil
+	return dt.getCountMutantFilter(filt)
 }
 
 func (dt *dnaRepository) GetHumansCount() (int, error) {
 	filt := expression.Name("is_mutant").Equal(expression.Value(false))
+	return dt.getCountMutantFilter(filt)
+}
+
+func (dt *dnaRepository) getCountMutantFilter(filt expression.ConditionBuilder) (int, error) {
 	proj := expression.NamesList(expression.Name("is_mutant"))
 	expr, err := expression.NewBuilder().WithFilter(filt).WithProjection(proj).Build()
 	if err != nil {

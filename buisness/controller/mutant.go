@@ -19,13 +19,8 @@ type (
 	mutantController struct {
 		dnaRepository repository.DnaRepositoryI
 	}
-
-	//directions in x and y  axis
-	direction struct {
-		I int
-		J int
-	}
-
+)
+type (
 	DNADto struct {
 		Sequence []string `json:"dna"`
 	}
@@ -38,6 +33,12 @@ type (
 
 	//enum for directions
 	Direction int
+
+	//directions in x and y  axis
+	direction struct {
+		I int
+		J int
+	}
 )
 
 const (

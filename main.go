@@ -18,6 +18,7 @@ func main() {
 	dnaRepository := repository.NewDnaRepository(awsConnection)
 
 	mutantController := controller.NewMutantController(dnaRepository)
+
 	router := router.NewRouter(*server, mutantController)
 	log.Fatal(router.Start())
 
