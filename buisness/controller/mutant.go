@@ -116,11 +116,11 @@ func (mc *mutantController) Stats(ctx echo.Context) error {
 		log.Error(err)
 		return err
 	}
-
-	ratio := float64(mutantCount)/float64(mutantCount) + float64(humanCount)
-	ratio = math.Round(ratio*100.0) / 100
 	var stats StatsDto
-	if ratio != 0.0 {
+	totalCount := (float64(mutantCount) + float64(humanCount))
+	if totalCount != 0.0 {
+		ratio := float64(mutantCount) / totalCount
+		ratio = math.Round(ratio*100.0) / 100
 		stats = StatsDto{
 			CountHumanDna: humanCount,
 			CountMutanDna: mutantCount,
