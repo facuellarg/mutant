@@ -6,7 +6,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
-	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
+	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbiface"
 	"github.com/aws/aws-sdk-go/service/dynamodb/expression"
 )
 
@@ -17,13 +17,14 @@ type (
 		ID       string   `json:"id"`
 	}
 	DnaRepositoryI interface {
+		CreateTables() error
 		Save(DNA) error
 		GetAll() ([]DNA, error)
 		GetMutantsCount() (int, error)
 		GetHumansCount() (int, error)
 	}
 	dnaRepository struct {
-		awsConnection *dynamodb.DynamoDB
+		awsConnection dynamodbiface.DynamoDBAPI
 		TableName     string
 	}
 )
@@ -32,21 +33,21 @@ const (
 	TABLE_NAME = "Mutant"
 )
 
-func NewDnaRepository(awsConnection *dynamodb.DynamoDB) DnaRepositoryI {
+func NewDnaRepository(awsConnection dynamodbiface.DynamoDBAPI) DnaRepositoryI {
 	r := &dnaRepository{awsConnection, "Mutant"}
-	r.createMutantTable()
 	return r
+}
+func (dr *dnaRepository) CreateTables() error {
+	dr.createMutantTable()
+	return nil
 }
 
 func (dr *dnaRepository) Save(dna DNA) error {
-	item, err := dynamodbattribute.MarshalMap(dna)
+	input, err := MarshalToDynamoInput(dna, dr.TableName)
 	if err != nil {
 		return err
 	}
-	_, err = dr.awsConnection.PutItem(&dynamodb.PutItemInput{
-		Item:      item,
-		TableName: &dr.TableName,
-	})
+	_, err = dr.awsConnection.PutItem(input)
 	return err
 }
 

@@ -16,6 +16,7 @@ func main() {
 
 	awsConnection := aws.Dynamodb()
 	dnaRepository := repository.NewDnaRepository(awsConnection)
+	dnaRepository.CreateTables()
 
 	mutantController := controller.NewMutantController(dnaRepository)
 
